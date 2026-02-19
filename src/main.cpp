@@ -20,27 +20,7 @@ static constexpr bn::fixed BASE_SPEED = 2;
 // Maximum number of bouncers on screen at once
 static constexpr int MAX_BOUNCERS = 20;
 
-
-int main() {
-    bn::core::init();
-
-    // Sprites and x speeds of bouncers
-    // Items with the same index correspond to each other
-    bn::vector<bn::sprite_ptr, MAX_BOUNCERS> sprites = {};
-    bn::vector<bn::fixed, MAX_BOUNCERS> x_speeds = {};
-
-    while(true) {
-        // if A is pressed add a new bouncer
-        if(bn::keypad::a_pressed()) {
-            // Only add if we're below the maximum
-            if(sprites.size() < sprites.max_size()) {
-                sprites.push_back(bn::sprite_items::dot.create_sprite());
-                x_speeds.push_back(BASE_SPEED);
-            }
-        }
-
-        // if B is pressed print the average to the console
-        if(bn::keypad::b_pressed()) {
+bn::fixed average_x(bn::vector<bn::sprite_ptr, MAX_BOUNCERS>& sprites){
             // Add all x positions together
             bn::fixed x_sum = 0;
             for(bn::sprite_ptr sprite : sprites) {
@@ -54,8 +34,34 @@ int main() {
             if(sprites.size() > 0) {
                 x_average /= sprites.size();
             }
+            return x_average;
+ }
 
-            BN_LOG("Average x: ", x_average);
+ void add_bouncer(bn::vector<bn::sprite_ptr, MAX_BOUNCERS>& sprites,
+                bn::vector<bn::fixed, MAX_BOUNCERS>& x_speeds) {
+            // Only add if we're below the maximum
+    if(sprites.size() < sprites.max_size()) {
+        sprites.push_back(bn::sprite_items::dot.create_sprite());
+        x_speeds.push_back(BASE_SPEED);
+    }
+}
+
+int main() {
+    bn::core::init();
+
+    // Sprites and x speeds of bouncers
+    // Items with the same index correspond to each other
+    bn::vector<bn::sprite_ptr, MAX_BOUNCERS> sprites = {};
+    bn::vector<bn::fixed, MAX_BOUNCERS> x_speeds = {};
+
+    while(true) {
+        // if A is pressed add a new bouncer
+        if(bn::keypad::a_pressed()) {
+            add_bouncer(sprites, x_speeds);
+        }
+
+        if(bn::keypad::b_pressed()) {
+            BN_LOG("Average x: ", average_x(sprites));
         }
 
         // for each bouncer
